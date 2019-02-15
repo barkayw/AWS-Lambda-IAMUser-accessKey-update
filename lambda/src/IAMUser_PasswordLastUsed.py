@@ -10,9 +10,6 @@ username = 'danielmkops'
 accesskey = 'AKIAIXUFZSZPBGABG23Q'
 
 
-# accesskey = 'AKIAIEFEUQU6PLVQ4NAA'
-# accesskey = 'AKIAI4IRC5WCJ3OJ7NYQ'
-
 def accesskey_1(accesskey):
     client = boto3.client('iam')
     res = client.get_access_key_last_used(AccessKeyId=accesskey)
