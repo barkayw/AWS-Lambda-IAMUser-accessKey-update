@@ -1,10 +1,7 @@
 import boto3
 import datetime
-import dateutil.tz
-import json
-import ast
 import time
-import sys
+
 
 username = 'danielmkops'
 accesskey = 'AKIAIXUFZSZPBGABG23Q'
