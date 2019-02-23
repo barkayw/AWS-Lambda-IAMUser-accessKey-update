@@ -90,6 +90,12 @@ def lambda_handler(event, context):
             print('user status: {0}'.format(existing_key_status))
             accesskey = access_key['AccessKeyId']
             print('Access key: {0}'.format(accesskey))
+            last_used_response = client.get_access_key_last_used(AccessKeyId=access_key['AccessKeyId'])
+            if 'LastUsedDate' in last_used_response['AccessKeyLastUsed']:
+                accesskey_last_used = last_used_response['AccessKeyLastUsed']['LastUsedDate']
+                accesskey_last_used = accesskey_last_used.strftime("%Y-%m-%d %H:%M:%S")
+                if last_access is None or accesskey_last_used < last_access:
+                    last_access = accesskey_last_used
 
             if existing_key_status == 'Inactive':
                 print("key is already in an INACTIVE state")
@@ -110,16 +116,6 @@ def lambda_handler(event, context):
         if skip:
             continue
 
-        # keys_response = client.list_access_keys(UserName=username)
-        # last_access = None
-        for key in access_keys['AccessKeyMetadata']:
-            last_used_response = client.get_access_key_last_used(AccessKeyId=key['AccessKeyId'])
-            if 'LastUsedDate' in last_used_response['AccessKeyLastUsed']:
-                accesskey_last_used = last_used_response['AccessKeyLastUsed']['LastUsedDate']
-                accesskey_last_used = accesskey_last_used.strftime("%Y-%m-%d %H:%M:%S")
-                if last_access is None or accesskey_last_used < last_access:
-                    last_access = accesskey_last_used
-
         currentdate = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
         if last_access != None:
             accesskeyd = time.mktime(datetime.datetime.strptime(last_access, "%Y-%m-%d %H:%M:%S").timetuple())
@@ -130,5 +126,5 @@ def lambda_handler(event, context):
             if delta >= 180:
                 print('Access Key unused over 180 days deleted')
             elif delta >= 90:
-                print('Access Key unused over 90 days Change status to Inactive')
-                # client.update_access_key(UserName=username, AccessKeyId=masked_access_key_id, Status='Inactive')
+                print('Unused over 90 days Access Key status Change to Inactive')
+                client.update_access_key(UserName=username, AccessKeyId=accesskey, Status='Inactive')
