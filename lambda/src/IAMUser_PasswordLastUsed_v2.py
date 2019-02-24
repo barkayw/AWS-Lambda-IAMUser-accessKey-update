@@ -57,7 +57,7 @@ def lambda_handler(event, context):
 
         if skip:
             continue
-        # currentdate = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+
         access_keys = client.list_access_keys(UserName=username)
         for access_key in access_keys['AccessKeyMetadata']:
             existing_key_status = access_key['Status']
@@ -102,4 +102,17 @@ def lambda_handler(event, context):
                 client.update_access_key(UserName=username, AccessKeyId=accesskey, Status='Inactive')
 
         if last_access == None and active_days > 90:
-            print('user None')
+            print('Never used over 90 days')
+
+            list_attached_policies = client.list_attached_user_policies(UserName=username)
+            policyarns = list_attached_policies['AttachedPolicies']
+            for arn in policyarns:
+                policyarn = arn['PolicyArn']
+                client.detach_user_policy(UserName=username, PolicyArn=policyarn)
+
+            list_inline_policies = client.list_user_policies(UserName=username)
+            policynames = list_inline_policies['PolicyNames']
+            for inpolicy in policynames:
+                client.delete_user_policy(UserName=username, PolicyName=inpolicy)
+
+            client.delete_user(UserName=username)
