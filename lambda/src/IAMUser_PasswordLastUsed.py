@@ -3,15 +3,8 @@ import datetime
 from dateutil.tz import tzutc
 import time
 
-# import dateutil.tz
-# import json
-# import ast
-# import sys
-
-
 BUILD_VERSION = "1.0"
 GROUP_LIST = "DoNotDeactivate"
-final_report = ''
 
 today = datetime.datetime.now()
 users = {}
@@ -65,13 +58,11 @@ def lambda_handler(event, context):
             accesskey = access_key['AccessKeyId']
             print('Access key: {0}'.format(accesskey))
             key_created_date = access_key['CreateDate']
-            print('key_created_date {0}'.format(key_created_date))
 
             currentd = time.mktime(datetime.datetime.strptime(currentdate, "%Y-%m-%d %H:%M:%S").timetuple())
             keycreateddate = key_created_date.strftime("%Y-%m-%d %H:%M:%S")
             accesskeyd = time.mktime(datetime.datetime.strptime(keycreateddate, "%Y-%m-%d %H:%M:%S").timetuple())
             active_days = (currentd - accesskeyd) / 60 / 60 / 24
-            print(int(round(active_days)))
 
             last_used_response = client.get_access_key_last_used(AccessKeyId=access_key['AccessKeyId'])
             if 'LastUsedDate' in last_used_response['AccessKeyLastUsed']:
