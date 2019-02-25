@@ -6,6 +6,7 @@ import ast
 import time
 import sys
 
+
 BUILD_VERSION = "2.0"
 # AWS_REGION = '@@deploymentregion'
 # AWS_EMAIL_REGION = '@@emailregion'
