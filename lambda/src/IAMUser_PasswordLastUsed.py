@@ -10,6 +10,7 @@ today = datetime.datetime.now()
 users = {}
 userindex = 0
 
+
 ####################################################################################
 
 def lambda_handler(event, context):
@@ -44,31 +45,27 @@ def lambda_handler(event, context):
             if groupName['GroupName'] == GROUP_LIST:
                 print('Detected that user belongs to exclusion group: {0}'.format(GROUP_LIST)),
                 print("\nDo Not invalidate Access Key")
-                skip = True
-                break
+            else:
+                access_keys = client.list_access_keys(UserName=username)
+                for access_key in access_keys['AccessKeyMetadata']:
+                    existing_key_status = access_key['Status']
+                    print('user status: {0}'.format(existing_key_status))
+                    accesskey = access_key['AccessKeyId']
+                    print('Access key: {0}'.format(accesskey))
+                    key_created_date = access_key['CreateDate']
 
-        if skip:
-            continue
+                    currentd = time.mktime(datetime.datetime.strptime(currentdate, "%Y-%m-%d %H:%M:%S").timetuple())
+                    keycreateddate = key_created_date.strftime("%Y-%m-%d %H:%M:%S")
+                    accesskeyd = time.mktime(
+                        datetime.datetime.strptime(keycreateddate, "%Y-%m-%d %H:%M:%S").timetuple())
+                    active_days = (currentd - accesskeyd) / 60 / 60 / 24
 
-        access_keys = client.list_access_keys(UserName=username)
-        for access_key in access_keys['AccessKeyMetadata']:
-            existing_key_status = access_key['Status']
-            print('user status: {0}'.format(existing_key_status))
-            accesskey = access_key['AccessKeyId']
-            print('Access key: {0}'.format(accesskey))
-            key_created_date = access_key['CreateDate']
-
-            currentd = time.mktime(datetime.datetime.strptime(currentdate, "%Y-%m-%d %H:%M:%S").timetuple())
-            keycreateddate = key_created_date.strftime("%Y-%m-%d %H:%M:%S")
-            accesskeyd = time.mktime(datetime.datetime.strptime(keycreateddate, "%Y-%m-%d %H:%M:%S").timetuple())
-            active_days = (currentd - accesskeyd) / 60 / 60 / 24
-
-            last_used_response = client.get_access_key_last_used(AccessKeyId=access_key['AccessKeyId'])
-            if 'LastUsedDate' in last_used_response['AccessKeyLastUsed']:
-                accesskey_last_used = last_used_response['AccessKeyLastUsed']['LastUsedDate']
-                accesskey_last_used = accesskey_last_used.strftime("%Y-%m-%d %H:%M:%S")
-                if last_access is None or accesskey_last_used < last_access:
-                    last_access = accesskey_last_used
+                    last_used_response = client.get_access_key_last_used(AccessKeyId=access_key['AccessKeyId'])
+                    if 'LastUsedDate' in last_used_response['AccessKeyLastUsed']:
+                        accesskey_last_used = last_used_response['AccessKeyLastUsed']['LastUsedDate']
+                        accesskey_last_used = accesskey_last_used.strftime("%Y-%m-%d %H:%M:%S")
+                        if last_access is None or accesskey_last_used < last_access:
+                            last_access = accesskey_last_used
 
         #     if existing_key_status == 'Inactive':
         #         print("key is already in an INACTIVE state")
