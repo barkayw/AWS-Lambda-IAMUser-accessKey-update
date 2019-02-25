@@ -10,7 +10,6 @@ today = datetime.datetime.now()
 users = {}
 userindex = 0
 
-
 ####################################################################################
 
 def lambda_handler(event, context):
