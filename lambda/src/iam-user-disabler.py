@@ -32,7 +32,6 @@ def lambda_handler(event, context):
     for user in users:
         userindex += 1
         user_keys = []
-        skip = False
         last_access = None
 
         print("\n---------------------"),
